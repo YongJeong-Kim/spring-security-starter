@@ -12,7 +12,10 @@
 <title>Spring Security Example</title>
 <script>
 $(document).ready(function() {
-	a.aaa();
+	
+	$('#signUp').on('click', function() {
+		
+	});
 })
 </script>
 </head>
@@ -33,7 +36,9 @@ $(document).ready(function() {
 			</div>
 			<div>
 				<input type="submit" value="Sign In" class="button red small" />
+				<input type="button" value="Sign Up" class="button red small" id="signUp"/>
 			</div>
+			
 			<!-- <c:if test="${param.error ne null}">
 				<div class="alert-danger">Invalid username and password.</div>
 			</c:if>
