@@ -10,7 +10,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.example.service.UserService;
 
@@ -19,6 +18,9 @@ import com.example.service.UserService;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private CustomWebAuthenticationDetailsSource customWebAuthenticationDetailsSource;
 	
 	@Autowired
 	private UserDetailsService userDetailsService;
@@ -33,19 +35,60 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		http.authorizeRequests().antMatchers("/hello").access("hasRole('ROLE_ADMIN')").anyRequest().permitAll()
 			.antMatchers("/css/**", "/js/**", "/home").permitAll()
 			.and()
-				.formLogin().loginPage("/login").usernameParameter("username").passwordParameter("password")
+				.formLogin().loginPage("/login").usernameParameter("username").passwordParameter("password").authenticationDetailsSource(customWebAuthenticationDetailsSource).defaultSuccessUrl("/")
 			.and()
 				.logout().logoutSuccessUrl("/login?logout")
 			.and()
 				.exceptionHandling().accessDeniedPage("/403")
 			.and()
 				.csrf();
-/*		 http
-         .csrf().disable()
-         .authorizeRequests()
-             .anyRequest().permitAll();*/
+//		http.addFilterBefore(authenticationFilterObtainUsername(),UsernamePasswordAuthenticationFilter.class);
+//		http.addFilterBefore(authenticationFilterAnotherParam(),UsernamePasswordAuthenticationFilter.class);
+
+	}
+	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	*  AuthenticationFilterAnotherParam 방법을 쓸 경우
+	*  이 주석과 46번 http.addFilterBefore(authenticationFilterAnotherParam(),UsernamePasswordAuthenticationFilter.class); 주석을 풀어야 함.
+	*  이 방법은 세션에 파라미터 저장하여 컨트롤러에서 HttpServletRequest로 불러와 씀.
+	*/
+	/*@Bean
+	@Override
+	public AuthenticationManager authenticationManagerBean() throws Exception {
+		return super.authenticationManagerBean();
 	}
 
+	@Bean
+	public AuthenticationFilterAnotherParam authenticationFilterAnotherParam() throws Exception {
+	    AuthenticationFilterAnotherParam authenticationFilterAnotherParam = new AuthenticationFilterAnotherParam();
+	    authenticationFilterAnotherParam.setAuthenticationManager(this.authenticationManagerBean());
+	    authenticationFilterAnotherParam.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher("/login","POST"));
+	    return authenticationFilterAnotherParam;
+	}*/
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 *  AuthenticationFilterObtainUsername 방법을 쓸 경우
+	 *  이 주석과 45번 http.addFilterBefore(authenticationFilterObtainUsername(),UsernamePasswordAuthenticationFilter.class); 주석을 풀어야 함.
+	 *  이 방법은 UserDetails의 loadUserByUsername에 username에 파라미터가 붙어 잘라서 쓰는 방법임.
+	 */
+	/*@Bean  
+	@Override
+	public AuthenticationManager authenticationManagerBean() throws Exception {
+       return super.authenticationManagerBean();
+	}
+
+    @Bean
+    public AuthenticationFilterObtainUsername authenticationFilterObtainUsername() throws Exception {
+       AuthenticationFilterObtainUsername authenticationFilterObtainUsername = new AuthenticationFilterObtainUsername();
+       authenticationFilterObtainUsername.setAuthenticationManager(this.authenticationManagerBean());
+       authenticationFilterObtainUsername.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher("/login","POST"));
+       return authenticationFilterObtainUsername;
+    }*/
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
 	@Bean(name = "passwordEncoder")
 	public PasswordEncoder passwordencoder() {
 		return new BCryptPasswordEncoder();

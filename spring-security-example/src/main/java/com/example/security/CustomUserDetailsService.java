@@ -22,11 +22,11 @@ public class CustomUserDetailsService implements UserDetailsService{
         this.userRepository = userRepository;
         this.userRolesRepository=userRolesRepository;
     }
-	
         
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		User user=userRepository.findByUserName(username);
+		User user = userRepository.findByUserName(username);
+
 		if(null == user){
 			throw new UsernameNotFoundException("No user present with username: "+username);
 		}else{

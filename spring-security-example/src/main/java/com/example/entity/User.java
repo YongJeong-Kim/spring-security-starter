@@ -28,6 +28,9 @@ public class User implements Serializable {
 	@Column(name ="enabled")
 	private int enabled;
 	
+	@Transient
+	private String test;
+	
 	public User(){
 		
 	}
@@ -78,6 +81,14 @@ public class User implements Serializable {
 
 	public void setUserName(String userName) {
 		this.userName = userName;
+	}
+
+	public String getTest() {
+		return test;
+	}
+
+	public void setTest(String test) {
+		this.test = test;
 	}
 	
 	
