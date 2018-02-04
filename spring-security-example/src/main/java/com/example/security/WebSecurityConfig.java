@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 import com.example.service.UserService;
 
@@ -35,7 +36,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		http.authorizeRequests().antMatchers("/hello").access("hasRole('ROLE_ADMIN')").anyRequest().permitAll()
 			.antMatchers("/css/**", "/js/**", "/home").permitAll()
 			.and()
-				.formLogin().loginPage("/login").usernameParameter("username").passwordParameter("password").authenticationDetailsSource(customWebAuthenticationDetailsSource).defaultSuccessUrl("/")
+				.formLogin()
+				.loginPage("/login")
+				.usernameParameter("username").passwordParameter("password")
+				.authenticationDetailsSource(customWebAuthenticationDetailsSource).defaultSuccessUrl("/")
+				.successHandler(successHandler())
 			.and()
 				.logout().logoutSuccessUrl("/login?logout")
 			.and()
@@ -46,12 +51,25 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //		http.addFilterBefore(authenticationFilterAnotherParam(),UsernamePasswordAuthenticationFilter.class);
 
 	}
+	/**
+	 * 로그인 풀렸을 때 다시 로그인하면 그 전 페이지로 이동
+	 * .successHandler(successHandler()) 추가
+	 * /login 컨트롤러에 
+	 * String referrer = request.getHeader("Referer");
+	 * request.getSession().setAttribute("prevPage", referrer); 추가    	
+	 * successHandler() 주석 풀기.
+	 */
+	@Bean
+	public AuthenticationSuccessHandler successHandler() {
+	    return new CustomLoginSuccessHandler("/");
+	}
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	*  AuthenticationFilterAnotherParam 방법을 쓸 경우
-	*  이 주석과 46번 http.addFilterBefore(authenticationFilterAnotherParam(),UsernamePasswordAuthenticationFilter.class); 주석을 풀어야 함.
+	*  이 주석과 http.addFilterBefore(authenticationFilterAnotherParam(),UsernamePasswordAuthenticationFilter.class); 주석을 풀어야 함.
 	*  이 방법은 세션에 파라미터 저장하여 컨트롤러에서 HttpServletRequest로 불러와 씀.
+	*  authenticationManagerBean()와 authenticationFilterAnotherParam 주석 풀기.
 	*/
 	/*@Bean
 	@Override
@@ -71,8 +89,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 *  AuthenticationFilterObtainUsername 방법을 쓸 경우
-	 *  이 주석과 45번 http.addFilterBefore(authenticationFilterObtainUsername(),UsernamePasswordAuthenticationFilter.class); 주석을 풀어야 함.
+	 *  이 주석과 http.addFilterBefore(authenticationFilterObtainUsername(),UsernamePasswordAuthenticationFilter.class); 주석을 풀어야 함.
 	 *  이 방법은 UserDetails의 loadUserByUsername에 username에 파라미터가 붙어 잘라서 쓰는 방법임.
+	 *  authenticationManagerBean()와 authenticationFilterObtainUsername() 주석 풀기.
 	 */
 	/*@Bean  
 	@Override
